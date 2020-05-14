@@ -1,9 +1,6 @@
 # WinPrivacy
 > Easily disable windows 10 tracking features with a single click
 
-[![NPM Version][npm-image]][npm-url]
-[![Build Status][travis-image]][travis-url]
-[![Downloads Stats][npm-downloads]][npm-url]
 
 This small tool will disable tracking features from within regedit.
 
