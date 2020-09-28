@@ -29,14 +29,10 @@ The tool is mostly focused towards anyone who do not feel comfortable editing th
 
 ## Dev comments
 
-_If you have any suggestions or issues, please contact me._
-
-## Release History
-
-
-* 0.0.1
-    * Initial commit
-
+* Telemetry - Sends usage and performance data to Microsoft.
+* DiagTrack - Same as Telemetry, but for diagnose.
+* GameDVR - Unused Xbox software that is both annoying and takes up system resources.
+* dmwappushservice - Windows mobile data collector.
 
 
 
