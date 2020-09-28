@@ -1,13 +1,14 @@
 import winreg
 import ctypes, os
+import logging
+import platform
 
 
-REG_PATH = r"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\.pdf\\UserChoice"
-REG_PATH1 = r"SYSTEM\CurrentControlSet\\Services\\DiagTrack"
-REG_PATH2 = r"SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection"
-REG_PATH3 = r"System\\GameConfigStore"
-REG_PATH4 = r"SYSTEM\\CurrentControlSet\\Services\\dmwappushservice"
-REG_PATH5 = r"SOFTWARE\\Microsoft\\Windows Defender\\Spynet"
+
+
+
+
+
 
 print(r'''
 __        __ ___  _   _  ____   ____   ___ __     __    _      ____ __   __
@@ -16,9 +17,16 @@ __        __ ___  _   _  ____   ____   ___ __     __    _      ____ __   __
   \ V  V /   | | | |\  ||  __/ |  _ <  | |   \ V /   / ___ \ | |___   | |
    \_/\_/   |___||_| \_||_|    |_| \_\|___|   \_/   /_/   \_\ \____|  |_|
     
-            Stay private, stay incognito!                   [Peter Jensen]
+            Stay private, stay incognito!                   [Peter Jensen - https://github.com/PeterEJensen]
 ''')
 
+
+
+logging.basicConfig(
+    filename='WinPrivacy.log',
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%d-%m-%Y %H:%M:%S')
 
 def isAdmin():
     try:
@@ -27,8 +35,14 @@ def isAdmin():
         is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
     return is_admin
 
+def OScheck():
+    osname = platform.platform()[:10]
+    if osname == 'Windows-10':
+        return True
+
 
 def set_tele(name = 'AllowTelemetry'):
+    REG_PATH2 = r"SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection"
     try:                    
         registry_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, REG_PATH2, 2,
                                        winreg.KEY_READ)
@@ -46,15 +60,17 @@ def set_tele(name = 'AllowTelemetry'):
             winreg.SetValueEx(registry_key, name, 2, winreg.REG_DWORD, 0)
             winreg.CloseKey(registry_key)
             print('successfully disabled telemetry!')
+            logging.info('successfully disabled telemetry!')
             return True
         except WindowsError:
             print('failed telemetry')
-            print(WindowsError)
+            logging.critical(WindowsError)
             return False
     else:
         print("Already disabled Telemetry. Nothing changed.")
 
 def set_diagTrack(name = 'Start'):
+    REG_PATH1 = r"SYSTEM\CurrentControlSet\\Services\\DiagTrack"
     try:                    
         registry_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, REG_PATH1, 2,
                                        winreg.KEY_READ)
@@ -72,16 +88,19 @@ def set_diagTrack(name = 'Start'):
             winreg.SetValueEx(registry_key, name, 2, winreg.REG_DWORD, 4)
             winreg.CloseKey(registry_key)
             print('successfully disabled DiagTrack!')
+            logging.info('successfully disabled Diagtrack!')
             return True
         except WindowsError:
             print('failed DiagTrack')
-            print(WindowsError)
+            logging.critical(WindowsError)
+        
             return False
     else:
         print('Already disabled DiagTrack. Nothing changed.')
 
 
 def set_gameDVR(name = 'GameDVR_Enabled'):
+    REG_PATH3 = r"System\\GameConfigStore"
     try:                    
         registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, REG_PATH3, 2,
                                        winreg.KEY_READ)
@@ -99,10 +118,11 @@ def set_gameDVR(name = 'GameDVR_Enabled'):
             winreg.SetValueEx(registry_key, name, 2, winreg.REG_DWORD, 0)
             winreg.CloseKey(registry_key)
             print('successfully disabled gameDVR!')
+            logging.info('successfully disabled gameDVR!')
             return True
         except WindowsError:
-            print('failed gameCVR')
-            print(WindowsError)
+            logging.critical(WindowsError)
+            print('failed gameDVR')
             return False
     else:
         print('Already disabled GameDVR. Nothing changed.')
@@ -112,6 +132,7 @@ def set_gameDVR(name = 'GameDVR_Enabled'):
 
 
 def set_dmwapp(name = 'Start'):
+    REG_PATH4 = r"SYSTEM\\CurrentControlSet\\Services\\dmwappushservice"
     try:                    
         registry_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, REG_PATH4, 2,
                                        winreg.KEY_READ)
@@ -128,14 +149,15 @@ def set_dmwapp(name = 'Start'):
             winreg.SetValueEx(registry_key, name, 2, winreg.REG_DWORD, 4)
             winreg.CloseKey(registry_key)
             print('successfully disabled dmwappushservice!')
+            logging.info('successfully disabled dmwappushservice!')
             return True
         except WindowsError:
-            print('failed dmwappushservice')
-            print(WindowsError)
+            logging.critical('failed dmwappushservice')
+            logging.critical(WindowsError)
             return False
     else:
         print('Already disabled dmwappushservice. Nothing changed.')
-        
+
 
 
 
@@ -145,20 +167,24 @@ while running:
     1.Clear all tracking from windows
     2.Exit
     """)
-
+    
     running=input(" ")
     if running =='1':
-        if isAdmin():
-            print('Running as admin - Continuing..')
-            print('********************************')
-            set_tele() # OK
-            set_diagTrack() # OK
-            set_gameDVR() # OK
-            set_dmwapp() # OK
-            #set_SpyNet() # -
-            #set_SampleConsent() # -
+        if OScheck():
+            if isAdmin():
+                
+                print('Running as admin - Continuing..')
+                print('********************************')
+                set_tele() # OK
+                set_diagTrack() # OK
+                set_gameDVR() # OK
+                set_dmwapp() # OK
+                #set_SpyNet() # -
+                #set_SampleConsent() # -
+            else:
+                print('Please rerun this program as admin')
         else:
-            print('Please rerun this program as admin')
+            print('Incorrect OS. Only for Win10')
     elif running =='2':
         running = None
     else:
@@ -171,6 +197,7 @@ while running:
 ###################################
 """
 def set_SpyNet(name = 'SpyNetReporting'):
+    REG_PATH5 = r"SOFTWARE\\Microsoft\\Windows Defender\\Spynet"
     try:                    
         registry_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, REG_PATH5, 2,
                                        winreg.KEY_READ)
